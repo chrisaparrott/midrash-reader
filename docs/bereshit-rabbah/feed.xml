@@ -16,7 +16,7 @@
       <itunes:episodeType>full</itunes:episodeType>
       <guid isPermaLink="false">bereshit-rabbah-001</guid>
       <pubDate>Fri, 02 Jan 2026 00:00:00 +0000</pubDate>
-      <enclosure url="https://github.com/chrisaparrott/midrash-reader/releases/download/bereshit-rabbah/bereshit-rabbah-001.mp3" length="14768025" type="audio/mpeg"/>
+      <enclosure url="https://chrisaparrott.github.io/midrash-reader/bereshit-rabbah/audio/bereshit-rabbah-001.mp3" length="11076105" type="audio/mpeg"/>
       <itunes:duration>1846</itunes:duration>
     </item>
     <item>
@@ -25,7 +25,7 @@
       <itunes:episodeType>full</itunes:episodeType>
       <guid isPermaLink="false">bereshit-rabbah-002</guid>
       <pubDate>Sat, 03 Jan 2026 00:00:00 +0000</pubDate>
-      <enclosure url="https://github.com/chrisaparrott/midrash-reader/releases/download/bereshit-rabbah/bereshit-rabbah-002.mp3" length="4094745" type="audio/mpeg"/>
+      <enclosure url="https://chrisaparrott.github.io/midrash-reader/bereshit-rabbah/audio/bereshit-rabbah-002.mp3" length="3071145" type="audio/mpeg"/>
       <itunes:duration>512</itunes:duration>
     </item>
   </channel>
