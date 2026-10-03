@@ -110,6 +110,21 @@ def main():
     args = ap.parse_args()
     for slug in SHOWS:
         build(slug, args.upload)
+    if args.upload:
+        publish_feeds()
+
+
+def publish_feeds() -> None:
+    """Commit and push only the feed files, so GitHub Pages serves the new episodes."""
+    feeds = [str(p.relative_to(ROOT)) for p in DOCS.glob("*/*") if p.suffix in (".xml", ".jpg")]
+    subprocess.run(["git", "add", *feeds], cwd=ROOT, check=True)
+    if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode == 0:
+        print("feed already up to date")
+        return
+    msg = "Feed: add finished chapters\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
+    subprocess.run(["git", "commit", "-q", "-F", "-"], input=msg, text=True, cwd=ROOT, check=True)
+    subprocess.run(["git", "push", "-q"], cwd=ROOT, check=True)
+    print("feed published")
 
 
 if __name__ == "__main__":
