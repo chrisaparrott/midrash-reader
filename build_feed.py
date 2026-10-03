@@ -1,10 +1,11 @@
 """Build the podcast feed (docs/<book>/feed.xml) for every finished MP3, and upload new MP3s.
 
     .venv/Scripts/python build_feed.py            # feed only
-    .venv/Scripts/python build_feed.py --upload   # also upload MP3s not yet on GitHub
+    .venv/Scripts/python build_feed.py --upload   # also commit + push so the episodes go live
 
-Free hosting: MP3s are GitHub release assets (one release per book); the feed and
-cover are served by GitHub Pages from docs/. Apple Podcasts: Library > ... >
+Free hosting: GitHub Pages serves docs/ — feed, cover and 48 kbps episode copies.
+(Release assets were tried first; Apple Podcasts refused them — served as
+application/octet-stream.) Apple Podcasts: Library > ... >
 Follow a Show by URL, paste the feed URL.
 """
 import argparse
@@ -49,31 +50,24 @@ def make_cover(path: Path, title: str) -> None:
                     "-frames:v", "1", str(path)], check=True)
 
 
-def upload_new(slug: str, mp3s: list[Path]) -> None:
-    repo = f"{OWNER}/{REPO}"
-    r = subprocess.run(["gh", "release", "view", slug, "-R", repo, "--json", "assets"], capture_output=True, text=True)
-    if r.returncode != 0:
-        subprocess.run(["gh", "release", "create", slug, "-R", repo, "--title", SHOWS[slug]["title"],
-                        "--notes", "Audio episodes."], check=True)
-        have = set()
-    else:
-        have = {a["name"] for a in json.loads(r.stdout)["assets"]}
-    for mp3 in mp3s:
-        if mp3.name not in have:
-            print("uploading", mp3.name, flush=True)
-            subprocess.run(["gh", "release", "upload", slug, str(mp3), "-R", repo], check=True)
+def web_copy(src: Path, dest: Path) -> Path:
+    """48 kbps mono copy for Pages: clear speech, and a whole book stays under Pages' 1 GB site limit."""
+    if not dest.exists():
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        print("encoding", dest.name, flush=True)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-codec:a", "libmp3lame", "-b:a", "48k",
+                        "-ac", "1", "-map_metadata", "0", "-id3v2_version", "3", str(dest)], check=True)
+    return dest
 
 
-def build(slug: str, upload: bool) -> None:
+def build(slug: str) -> None:
     show = SHOWS[slug]
-    mp3s = sorted((AUDIO_DIR / slug).glob("*.mp3"))
-    if upload:
-        upload_new(slug, mp3s)
     make_cover(DOCS / slug / "cover.jpg", show["title"])
     items = []
-    for mp3 in mp3s:
+    for src in sorted((AUDIO_DIR / slug).glob("*.mp3")):
+        mp3 = web_copy(src, DOCS / slug / "audio" / src.name)
         chapter = int(mp3.stem.rsplit("-", 1)[1])
-        url = f"https://github.com/{OWNER}/{REPO}/releases/download/{slug}/{mp3.name}"
+        url = f"{SITE}/{slug}/audio/{mp3.name}"
         date = email.utils.format_datetime(EPOCH + timedelta(days=chapter))
         items.append(f"""    <item>
       <title>{escape(show['title'])} {chapter}</title>
@@ -109,15 +103,15 @@ def main():
     ap.add_argument("--upload", action="store_true")
     args = ap.parse_args()
     for slug in SHOWS:
-        build(slug, args.upload)
+        build(slug)
     if args.upload:
         publish_feeds()
 
 
 def publish_feeds() -> None:
-    """Commit and push only the feed files, so GitHub Pages serves the new episodes."""
-    feeds = [str(p.relative_to(ROOT)) for p in DOCS.glob("*/*") if p.suffix in (".xml", ".jpg")]
-    subprocess.run(["git", "add", *feeds], cwd=ROOT, check=True)
+    """Commit and push only the feed, cover and episode files, so GitHub Pages serves the new episodes."""
+    files = [str(p.relative_to(ROOT)) for p in DOCS.rglob("*") if p.suffix in (".xml", ".jpg", ".mp3")]
+    subprocess.run(["git", "add", *files], cwd=ROOT, check=True)
     if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode == 0:
         print("feed already up to date")
         return
