@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>Bereshit Rabbah</title>
+    <link>https://www.sefaria.org/Bereshit_Rabbah</link>
+    <description>Midrash Bereshit Rabbah read aloud in English, one chapter per episode. Text: The Sefaria Midrash Rabbah, 2022 (CC-BY), from Sefaria.org.</description>
+    <language>en</language>
+    <itunes:author>Sefaria English translation</itunes:author>
+    <itunes:type>serial</itunes:type>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:block>Yes</itunes:block>
+    <itunes:image href="https://chrisaparrott.github.io/midrash-reader/bereshit-rabbah/cover.jpg"/>
+    <item>
+      <title>Bereshit Rabbah 1</title>
+      <itunes:episode>1</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <guid isPermaLink="false">bereshit-rabbah-001</guid>
+      <pubDate>Fri, 02 Jan 2026 00:00:00 +0000</pubDate>
+      <enclosure url="https://github.com/chrisaparrott/midrash-reader/releases/download/bereshit-rabbah/bereshit-rabbah-001.mp3" length="14768025" type="audio/mpeg"/>
+      <itunes:duration>1846</itunes:duration>
+    </item>
+  </channel>
+</rss>
